@@ -1,0 +1,52 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+##About this notebook
+Created by Kevin McNulty
+
+
+
+## Load libraries and establish settings
+```{r}
+plot(cars)
+options(scipen=999)
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+```
+##Load data
+
+
+
+```{r}
+college_scorecard <- read.csv("KEVIN_MERGED2019_20_PP.csv") %>% 
+  clean_names()
+maryland_schools <- read.csv("CollegeNavigator_Search_2022-11-17_13.47.02.csv") %>% 
+  clean_names()
+```
+
+##Filter for Maryland 
+
+
+```{r}
+college_scorecard %>% 
+  filter(stabbr =="MD")
+```
+
+##Join both dataframes 
+
+
+```{r}
+  colnames(maryland_schools)[colnames(maryland_schools) == "ipeds_id"] ="unitid"
+
+  college_scorecard <- maryland_schools %>%
+  inner_join(college_scorecard, by="unitid")
+```
+
+##Clean columns
+```{r}
+  college_scorecard <- college_scorecard [-c(2, 3, 7, 10, 11, 12, 14, 16, 17, 19)]
+  colnames(college_scorecard)[colnames(college_scorecard) == "npt4_pub"] ="avg_net_price"
+  colnames(college_scorecard)[colnames(college_scorecard) == "stabbr"] ="state"
+```
