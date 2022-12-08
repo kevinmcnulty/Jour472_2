@@ -1,15 +1,22 @@
 ---
+author: "Kevin McNulty"
 title: "R Notebook"
 output: html_notebook
+date: "Dec 8 2022"
 ---
 ##About this notebook
 Created by Kevin McNulty
 
+1: Where are your questions that you are trying to answer. they need to be on this document.
+2: What is the data, where does it come from and what do the variables mean. We discussed using this: https://collegescorecard.ed.gov/data/documentation/ That is a major gap.
+3: Filter the college scorecard for all maryland schools and find the max, min, mean and median for student load debt. graph that. 
+4: What school has the highest debt per capita? do that math, get your top 10 and bottom 10 schools and graph that.
+5: I don't know what you get by joining to College Navigator except it filters the maryland schools to four year schools. the only useful metric is the graduation rate - the rest you have on the college scorecard data. So if you do this, I would just be focusing on the college scorecard data.
 
+I'm conducting data analysis of student loan debt for college graduates in the state of Maryland. 
 
 ## Load libraries and establish settings
 ```{r}
-plot(cars)
 options(scipen=999)
 library(tidyverse)
 library(janitor)
@@ -20,8 +27,8 @@ library(ggplot2)
 
 
 ```{r}
-college_scorecard <- read.csv("KEVIN_MERGED2019_20_PP.csv") %>% 
-  clean_names()
+college_scorecard <- read.csv("KEVIN_MERGED2019_20_PP_DEC6.csv") %>% 
+   clean_names()
 maryland_schools <- read.csv("CollegeNavigator_Search_2022-11-17_13.47.02.csv") %>% 
   clean_names()
 ```
@@ -49,4 +56,16 @@ college_scorecard %>%
   college_scorecard <- college_scorecard [-c(2, 3, 7, 10, 11, 12, 14, 16, 17, 19)]
   colnames(college_scorecard)[colnames(college_scorecard) == "npt4_pub"] ="avg_net_price"
   colnames(college_scorecard)[colnames(college_scorecard) == "stabbr"] ="state"
+  colnames(college_scorecard)[colnames(college_scorecard) == "grad_debt_mdn"] ="median_debt"
+  colnames(college_scorecard)[colnames(college_scorecard) == "ugds"] ="undergrads"
 ```
+
+##Make columns numeric; remove null values
+```{r}
+college_scorecard$median_debt <- gsub("PrivacySuppressed", "", college_scorecard$median_debt)
+college_scorecard$median_debt <- as.numeric(college_scorecard$median_debt)
+```
+
+##Q1 Graduates of which Maryland schools are in the most debt, on average?
+  
+##Question 2
