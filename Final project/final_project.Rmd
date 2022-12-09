@@ -7,11 +7,6 @@ date: "Dec 8 2022"
 ##About this notebook
 Created by Kevin McNulty
 
-
-3: Filter the college scorecard for all maryland schools and find the max, min, mean and median for student load debt. graph that. 
-4: What school has the highest debt per capita? do that math, get your top 10 and bottom 10 schools and graph that.
-
-
 I'm conducting data analysis of student loan debt for college graduates in the state of Maryland. 
 
 ## Load libraries and establish settings
@@ -79,7 +74,15 @@ college_scorecard$avg_net_price <- as.numeric(college_scorecard$avg_net_price)
 ```
 
 ##Q1 What are the notable trends in the student loan debt data? 
+
+```{r}
+summary(college_scorecard$median_debt)
+```
   
+```{r}
+summary <- Summary_Sheet1
+```
+
 ##Q2 Graduates of which Maryland schools are in the most debt, on average?
 
 ```{r}
