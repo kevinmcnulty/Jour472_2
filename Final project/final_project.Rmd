@@ -7,11 +7,10 @@ date: "Dec 8 2022"
 ##About this notebook
 Created by Kevin McNulty
 
-1: Where are your questions that you are trying to answer. they need to be on this document.
-2: What is the data, where does it come from and what do the variables mean. We discussed using this: https://collegescorecard.ed.gov/data/documentation/ That is a major gap.
+
 3: Filter the college scorecard for all maryland schools and find the max, min, mean and median for student load debt. graph that. 
 4: What school has the highest debt per capita? do that math, get your top 10 and bottom 10 schools and graph that.
-5: I don't know what you get by joining to College Navigator except it filters the maryland schools to four year schools. the only useful metric is the graduation rate - the rest you have on the college scorecard data. So if you do this, I would just be focusing on the college scorecard data.
+
 
 I'm conducting data analysis of student loan debt for college graduates in the state of Maryland. 
 
@@ -24,7 +23,9 @@ library(ggplot2)
 ```
 ##Load data
 
+The data for this project comes from two sources: College Navigator, an information tool from the National Center for Education Statistics, and College Scorecard, institution-level data from the U.S. Department of Education. Most of the data analyzed in this project comes from the College Scorecard data set, but I'm using data from two sources is to fill some gaps in the Scorecard data. 
 
+For example, many of the rows in the Scorecard data set had null values for the average cost of attendance. The College Navigator data set had reliable values for that category, which is why I decided to join the two data sets. College Navigator also has data on graduation rates for each school, another important factor for this project. 
 
 ```{r}
 college_scorecard <- read.csv("KEVIN_MERGED2019_20_PP_DEC6.csv") %>% 
@@ -52,6 +53,13 @@ college_scorecard %>%
 ```
 
 ##Clean columns
+
+Many of the columns on this newly-joined data frame need to be cleaned in order for them to be usable and understandable. All of the columns that needed cleaning came from the College Scorecard dataset: "npt4_pub", "stabbr", and "ugds". 
+
+"npt4_pub" is the average cost of attendance, so I changed that column name to "avg_net_price". "stabbr" is just the state, and obviously, I just named that "state". Finally, "ugds" was defined on the College Scorecard website as undergraduate, degree-seeking students, so I changed the name of that column to "undergrads".  
+
+After joining the two dataframes, some of the columns (10, to be exact) weren't useless nor salient, so I deleted them. 
+
 ```{r}
   college_scorecard <- college_scorecard [-c(2, 3, 7, 10, 11, 12, 14, 16, 17, 19)]
   colnames(college_scorecard)[colnames(college_scorecard) == "npt4_pub"] ="avg_net_price"
@@ -60,12 +68,64 @@ college_scorecard %>%
   colnames(college_scorecard)[colnames(college_scorecard) == "ugds"] ="undergrads"
 ```
 
+
 ##Make columns numeric; remove null values
+
 ```{r}
 college_scorecard$median_debt <- gsub("PrivacySuppressed", "", college_scorecard$median_debt)
 college_scorecard$median_debt <- as.numeric(college_scorecard$median_debt)
+college_scorecard$avg_net_price <- gsub("NULL", "", college_scorecard$avg_net_price)
+college_scorecard$avg_net_price <- as.numeric(college_scorecard$avg_net_price)
 ```
 
-##Q1 Graduates of which Maryland schools are in the most debt, on average?
+##Q1 What are the notable trends in the student loan debt data? 
   
-##Question 2
+##Q2 Graduates of which Maryland schools are in the most debt, on average?
+
+```{r}
+# Top ten schools, where graduates are most in debt
+top_ten <- college_scorecard %>% 
+  select(name, median_debt) %>%   
+  slice_max(median_debt, n=10)
+```
+
+```{r}
+# Bar graph of the top ten schools, where graduates are most in debt
+top_ten %>%
+  ggplot(aes(x= reorder(name, +median_debt), y=median_debt, weight=median_debt)) +
+  coord_flip() + 
+  theme_minimal() +
+  geom_col()+
+  geom_text(aes(label=median_debt), hjust = -.1, size = 2.5) +
+    labs(
+    subtitle="State of Maryland",
+       y="Median Debt",
+       x="College/University",
+       title="Schools whose graduates are most in debt",
+       caption = "Graphic by Kevin Mcnulty") 
+```
+
+##Q3 Graduates of which Maryland schools are in the least debt, on average?
+
+```{r}
+# Bottom ten schools, where graduates are least in debt
+bottom_ten <- college_scorecard %>% 
+  select(name, median_debt) %>%   
+  slice_min(median_debt, n=10)
+```
+
+```{r}
+# Bar graph of the bottom ten schools, where graduates are least in debt
+bottom_ten %>%
+  ggplot(aes(x= reorder(name, -median_debt), y=median_debt, weight=median_debt)) +
+  coord_flip() + 
+  theme_minimal() +
+  geom_col()+
+  geom_text(aes(label=median_debt), hjust = -.1, size = 2.5) +
+    labs(
+    subtitle="State of Maryland",
+       y="Median Debt",
+       x="College/University",
+       title="Schools whose graduates are least in debt",
+       caption = "Graphic by Kevin Mcnulty") 
+```
